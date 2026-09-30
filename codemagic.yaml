@@ -9,7 +9,7 @@ workflows:
       - name: Build unsigned IPA
         script: |
           cd $CM_BUILD_DIR
-          unzip -o "NodeLab_Handoff_1.0.0_最终工程.zip" "GuavaNodeLab.xcodeproj/*" "GuavaNodeLab/*" "README.md" -d src || true
+          unzip -o "NodeLab_Handoff_1.0.0_最终工程.zip" "NodeLab_Handoff_1.0.0/GuavaNodeLab.xcodeproj/*" "NodeLab_Handoff_1.0.0/GuavaNodeLab/*" "NodeLab_Handoff_1.0.0/README.md" -d src || true
           cd src/NodeLab_Handoff_1.0.0
           xcodebuild -project GuavaNodeLab.xcodeproj -target NodeLab -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO build
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*Release-iphoneos/Node Lab.app" -type d | head -1)
