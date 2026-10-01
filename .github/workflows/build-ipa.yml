@@ -3,21 +3,28 @@ on:
   push:
     branches: [main, master]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
-      - name: Extract and build
-        run: |
-          unzip -o "NodeLab_Handoff_1.0.0_最终工程.zip" -d src
-          cd src/NodeLab_Handoff_1.0.0
-          xcodebuild -project GuavaNodeLab.xcodeproj -target NodeLab -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO -derivedDataPath build build
-          mkdir -p Payload
-          cp -R "build/Build/Products/Release-iphoneos/Node Lab.app" Payload/
-          zip -qry NodeLab-unsigned.ipa Payload
-      - uses: actions/upload-artifact@v4
-        with:
-          name: NodeLab-unsigned
-          path: src/NodeLab_Handoff_1.0.0/NodeLab-unsigned.ipa
+    - uses: actions/checkout@v4
+    - name: Unpack latest source
+      run: |
+        unzip -o nodelab-src.zip
+        ls -la
+    - name: Build unsigned app
+      run: |
+        xcodebuild -project GuavaNodeLab.xcodeproj -target NodeLab -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO SYMROOT="$PWD/build" build
+    - name: Ad-hoc sign and package IPA
+      run: |
+        APP="$PWD/build/Release-iphoneos/Node Lab.app"
+        codesign -f -s - "$APP"
+        mkdir -p Payload
+        cp -R "$APP" Payload/
+        zip -qry NodeLab-unsigned.ipa Payload
+        ls -lh NodeLab-unsigned.ipa
+    - uses: actions/upload-artifact@v4
+      with:
+        name: NodeLab-unsigned-ipa
+        path: NodeLab-unsigned.ipa
+        if-no-files-found: error
